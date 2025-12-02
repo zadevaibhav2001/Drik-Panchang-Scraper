@@ -31,6 +31,14 @@
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .header p {
+                font-size: 1em;
+            }
+        }
         .header p {
             opacity: 0.9;
             font-size: 1.1em;
@@ -38,15 +46,34 @@
         .content {
             padding: 30px;
         }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .content {
+                padding: 20px;
+            }
+        }
         .controls {
             background: #f8f9fa;
-            padding: 25px;
+            padding: 20px;
             border-radius: 10px;
             margin-bottom: 25px;
             display: flex;
-            gap: 15px;
+            gap: 10px;
             align-items: center;
             flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            .controls label {
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
         }
         select {
             padding: 12px 15px;
@@ -55,6 +82,14 @@
             font-size: 16px;
             background: white;
             min-width: 150px;
+        }
+        @media (max-width: 768px) {
+            select {
+                width: 100%;
+                min-width: unset;
+                font-size: 18px;
+                padding: 15px;
+            }
         }
         select:focus {
             outline: none;
@@ -71,6 +106,13 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,124,186,0.3);
+        }
+        @media (max-width: 768px) {
+            button {
+                width: 100%;
+                padding: 15px;
+                font-size: 18px;
+            }
         }
         button:hover {
             transform: translateY(-2px);
@@ -112,6 +154,13 @@
             align-items: center;
             margin-bottom: 15px;
         }
+        @media (max-width: 768px) {
+            .output-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+        }
         .output-header h3 {
             color: #333;
             font-size: 1.3em;
@@ -136,6 +185,13 @@
             background: #f8f9fa;
             resize: vertical;
         }
+        @media (max-width: 768px) {
+            .output-text {
+                min-height: 300px;
+                padding: 15px;
+                font-size: 12px;
+            }
+        }
         .output-text:focus {
             outline: none;
             border-color: #007cba;
@@ -143,6 +199,78 @@
         }
         .results {
             display: none;
+        }
+        .un-days-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        @media (max-width: 768px) {
+            .un-days-list {
+                grid-template-columns: 1fr;
+                max-height: 250px;
+                padding: 10px;
+            }
+        }
+        .un-day-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .un-day-item input[type="checkbox"] {
+            margin-top: 2px;
+        }
+        .un-day-label {
+            font-size: 14px;
+            line-height: 1.3;
+        }
+        .un-day-date {
+            font-weight: bold;
+            color: #007cba;
+        }
+        #unAddSection, #indianAddSection {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        #unAddSection h3, #indianAddSection h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .un-button-container {
+            margin-top: 15px;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            #unAddSection, #indianAddSection {
+                padding: 15px;
+                display: flex;
+                flex-direction: column;
+            }
+            #unAddSection .un-days-list, #indianAddSection .un-days-list {
+                max-height: 200px;
+                margin-bottom: 15px;
+                width: 100%;
+            }
+            .un-button-container {
+                width: 100%;
+                margin-top: 10px;
+            }
+            .un-button-container button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -155,6 +283,15 @@
         
         <div class="content">
             <div class="controls">
+                <label>📅 Calendar Type:</label>
+                <select id="calendarType" onchange="toggleCalendarType()">
+                    <option value="iskcon">ISKCON Events</option>
+                    <option value="indian">Indian Calendar</option>
+                    <option value="un">UN International Days</option>
+                </select>
+            </div>
+            
+            <div id="iskconControls" class="controls">
                 <label>📅 Year:</label>
                 <select id="yearSelect">
                     <option value="2025">2025</option>
@@ -181,6 +318,80 @@
                 </select>
                 
                 <button onclick="scrapeEvents()">🔍 Get Events</button>
+            </div>
+            
+            <div id="indianControls" class="controls" style="display: none;">
+                <label>📅 Year:</label>
+                <select id="indianYearSelect" onchange="loadIndianEvents()">
+                    <option value="2025">2025</option>
+                    <option value="2026" selected>2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                </select>
+                
+                <label>📆 Month:</label>
+                <select id="indianMonthSelect" onchange="loadIndianEvents()">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6" selected>June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                
+                <button onclick="generateIndianCalendar()">📋 Generate Calendar</button>
+            </div>
+            
+            <div id="unAddSection" style="display: none;">
+                <h3>🌍 Add UN International Days:</h3>
+                <div id="unDaysCheckboxes" class="un-days-list"></div>
+                <div class="un-button-container">
+                    <button onclick="addUNDays()">➕ Add Selected to Calendar</button>
+                </div>
+            </div>
+            
+            <div id="indianAddSection" style="display: none;">
+                <h3>🇮🇳 Add Indian Calendar Events:</h3>
+                <div id="indianDaysCheckboxes" class="un-days-list"></div>
+                <div class="un-button-container">
+                    <button onclick="addIndianDays()">➕ Add Selected to Calendar</button>
+                </div>
+            </div>
+            
+            <div id="unControls" class="controls" style="display: none;">
+                <label>📆 Month:</label>
+                <select id="unMonthSelect" onchange="loadUNDays()">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6" selected>June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                
+                <button onclick="generateUNCalendar()">📋 Generate Calendar</button>
+            </div>
+            
+            <div id="unDaysSection" style="display: none;">
+                <h3>Select International Days:</h3>
+                <div id="unDaysList" class="un-days-list"></div>
+            </div>
+            
+            <div id="indianDaysSection" style="display: none;">
+                <h3>Select Indian Calendar Events:</h3>
+                <div id="indianEventsList" class="un-days-list"></div>
             </div>
             
             <div id="status"></div>
@@ -217,7 +428,7 @@
                     
                     if (data.success) {
                         const monthlyEvents = groupEventsByMonth(data.events, month);
-                        displayResults(monthlyEvents);
+                        displayResults(monthlyEvents, 'iskcon');
                         status.innerHTML = '';
                         return;
                     }
@@ -249,7 +460,50 @@
                     if (html && html.includes('dpEventInfo')) {
                         const events = parseEvents(html);
                         const monthlyEvents = groupEventsByMonth(events, month);
-                        displayResults(monthlyEvents);
+                        displayResults(monthlyEvents, 'iskcon');
+                        status.innerHTML = '';
+                        return;
+                    }
+                } catch (error) {
+                    console.log(`Proxy ${i + 1} failed:`, error);
+                }
+            }
+            
+            status.innerHTML = '<div class="error">❌ All methods failed. Try refreshing or deploy to Netlify.</div>';
+        }
+        
+        async function scrapeIndianEvents() {
+            const year = document.getElementById('indianYearSelect').value;
+            const month = document.getElementById('indianMonthSelect').value;
+            const status = document.getElementById('status');
+            const results = document.getElementById('results');
+            
+            status.innerHTML = '<div class="loading">🔄 Loading Indian calendar events...</div>';
+            results.innerHTML = '';
+            
+            const targetUrl = `https://www.drikpanchang.com/calendars/indian/indiancalendar.html?year=${year}`;
+            const proxies = [
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+                `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(targetUrl)}`,
+                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
+            ];
+            
+            for (let i = 0; i < proxies.length; i++) {
+                try {
+                    const response = await fetch(proxies[i]);
+                    let html;
+                    
+                    if (i === 2) { // allorigins returns JSON
+                        const data = await response.json();
+                        html = data.contents;
+                    } else {
+                        html = await response.text();
+                    }
+                    
+                    if (html && (html.includes('dpEventInfo') || html.includes('dpCalendarDate'))) {
+                        const events = parseIndianEvents(html);
+                        const monthlyEvents = groupEventsByMonth(events, month);
+                        displayResults(monthlyEvents, 'indian');
                         status.innerHTML = '';
                         return;
                     }
@@ -282,6 +536,70 @@
             return events;
         }
         
+        function parseIndianEvents(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const events = [];
+            
+            // Try multiple selectors for Indian calendar events
+            const eventSelectors = [
+                '.dpEventInfo',
+                '.dpCalendarDate',
+                '.dpCalendarEvent',
+                '.dpHinduEvent'
+            ];
+            
+            eventSelectors.forEach(selector => {
+                const eventElements = doc.querySelectorAll(selector);
+                eventElements.forEach(element => {
+                    let date = '';
+                    let name = '';
+                    
+                    // Extract date and event name based on structure
+                    const dateElement = element.querySelector('.dpEventGregDate, .dpCalendarGregDate, .dpDate');
+                    const nameElement = element.querySelector('.dpEventName, .dpCalendarEventName, .dpHinduEventName');
+                    
+                    if (dateElement && nameElement) {
+                        date = dateElement.textContent.trim();
+                        name = nameElement.textContent.trim();
+                    } else if (element.textContent.includes(',')) {
+                        // Fallback: try to parse from text content
+                        const text = element.textContent.trim();
+                        const parts = text.split(',');
+                        if (parts.length >= 2) {
+                            date = parts[0] + ',' + parts[1];
+                            name = parts.slice(2).join(',').trim();
+                        }
+                    }
+                    
+                    if (date && name && !events.some(e => e.date === date && e.name === name)) {
+                        events.push({ date, name });
+                    }
+                });
+            });
+            
+            // If no events found with above selectors, try a more general approach
+            if (events.length === 0) {
+                const allElements = doc.querySelectorAll('*');
+                allElements.forEach(element => {
+                    const text = element.textContent;
+                    if (text && text.match(/\w+\s+\d{1,2},\s+\d{4}/)) {
+                        const dateMatch = text.match(/(\w+\s+\d{1,2},\s+\d{4})/g);
+                        if (dateMatch) {
+                            dateMatch.forEach(date => {
+                                const remaining = text.replace(date, '').trim();
+                                if (remaining && remaining.length > 3) {
+                                    events.push({ date: date.trim(), name: remaining });
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+            
+            return events;
+        }
+        
 
         
         function groupEventsByMonth(events, filterMonth) {
@@ -309,7 +627,14 @@
             return monthlyEvents;
         }
         
-        function displayResults(monthlyEvents) {
+        let currentMonthlyEvents = {};
+        let currentCalendarType = 'iskcon';
+        let addedEvents = {}; // Track events that have been added
+        
+        function displayResults(monthlyEvents, calendarType = 'iskcon') {
+            currentMonthlyEvents = monthlyEvents;
+            currentCalendarType = calendarType;
+            addedEvents = {}; // Reset added events when new calendar is generated
             const monthDays = {Jan: 31, Feb: 28, Mar: 31, Apr: 30, May: 31, Jun: 30, Jul: 31, Aug: 31, Sep: 30, Oct: 31, Nov: 30, Dec: 31};
             const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             
@@ -322,12 +647,14 @@
                     for (let day = 1; day <= monthDays[month]; day++) {
                         if (monthlyEvents[month][day]) {
                             const eventNames = monthlyEvents[month][day];
-                            text += `${day}. ${eventNames[0]}\n`;
+                            const dayStr = day < 10 ? ` ${day}` : `${day}`;
+                            text += `${dayStr}. ${eventNames[0]}\n`;
                             for (let i = 1; i < eventNames.length; i++) {
-                                text += `   ${eventNames[i]}\n`;
+                                text += `    ${eventNames[i]}\n`;
                             }
                         } else {
-                            text += `${day}.\n`;
+                            const dayStr = day < 10 ? ` ${day}` : `${day}`;
+                            text += `${dayStr}.\n`;
                         }
                     }
                     text += '\n';
@@ -336,6 +663,203 @@
             
             document.getElementById('outputText').value = text;
             document.getElementById('outputSection').style.display = 'block';
+            
+            // Show appropriate add sections based on calendar type and month selection
+            if (calendarType === 'iskcon') {
+                const selectedMonth = document.getElementById('monthSelect').value;
+                if (selectedMonth) {
+                    loadUNDaysForMonth(parseInt(selectedMonth));
+                    document.getElementById('unAddSection').style.display = 'flex';
+                    loadIndianDaysForMonth(parseInt(selectedMonth));
+                    document.getElementById('indianAddSection').style.display = 'flex';
+                }
+            }
+        }
+        
+        function loadUNDaysForMonth(monthNum) {
+            const container = document.getElementById('unDaysCheckboxes');
+            const days = unDaysData[monthNum] || [];
+            
+            container.innerHTML = days.map((day, index) => `
+                <div class="un-day-item">
+                    <input type="checkbox" id="unAddDay${index}" value="${day.date}|${day.name}">
+                    <label for="unAddDay${index}" class="un-day-label">
+                        <span class="un-day-date">${day.date}</span><br>
+                        ${day.name}
+                    </label>
+                </div>
+            `).join('');
+        }
+        
+        function addUNDays() {
+            const checkboxes = document.querySelectorAll('#unDaysCheckboxes input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                document.getElementById('status').innerHTML = '<div class="error">❌ Please select UN days to add</div>';
+                return;
+            }
+            
+            // Parse selected UN days and add to addedEvents
+            checkboxes.forEach(checkbox => {
+                const [date, name] = checkbox.value.split('|');
+                const day = parseInt(date.split(' ')[0]);
+                if (!addedEvents[day]) addedEvents[day] = [];
+                const eventName = `[UN] ${name}`;
+                if (!addedEvents[day].includes(eventName)) {
+                    addedEvents[day].push(eventName);
+                }
+            });
+            
+            regenerateCalendarWithAddedEvents();
+            document.getElementById('status').innerHTML = '<div class="success">✅ UN days added to calendar</div>';
+        }
+        
+        let cachedIndianEvents = {};
+        
+        async function loadIndianDaysForMonth(monthNum) {
+            const container = document.getElementById('indianDaysCheckboxes');
+            const year = document.getElementById('yearSelect').value;
+            const cacheKey = `${year}-${monthNum}`;
+            
+            // Check if we have cached events for this year-month
+            if (cachedIndianEvents[cacheKey]) {
+                displayIndianEventsForMonth(cachedIndianEvents[cacheKey], monthNum, container);
+                return;
+            }
+            
+            container.innerHTML = '<div class="un-day-item"><span>Loading Indian calendar events...</span></div>';
+            
+            // Scrape Indian events for the selected year
+            const targetUrl = `https://www.drikpanchang.com/calendars/indian/indiancalendar.html?year=${year}`;
+            const proxies = [
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+                `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(targetUrl)}`,
+                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
+            ];
+            
+            for (let i = 0; i < proxies.length; i++) {
+                try {
+                    const response = await fetch(proxies[i]);
+                    let html;
+                    
+                    if (i === 2) {
+                        const data = await response.json();
+                        html = data.contents;
+                    } else {
+                        html = await response.text();
+                    }
+                    
+                    if (html && (html.includes('dpEventInfo') || html.includes('dpCalendarDate'))) {
+                        const events = parseIndianEvents(html);
+                        const monthlyEvents = groupEventsByMonth(events, monthNum);
+                        
+                        // Cache the events
+                        cachedIndianEvents[cacheKey] = monthlyEvents;
+                        
+                        displayIndianEventsForMonth(monthlyEvents, monthNum, container);
+                        return;
+                    }
+                } catch (error) {
+                    console.log(`Indian events proxy ${i + 1} failed:`, error);
+                }
+            }
+            
+            container.innerHTML = '<div class="un-day-item"><span>Failed to load Indian calendar events</span></div>';
+        }
+        
+        function displayIndianEventsForMonth(monthlyEvents, monthNum, container) {
+            const monthNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthName = monthNames[monthNum];
+            const monthEvents = monthlyEvents[monthName] || {};
+            
+            const eventsList = [];
+            Object.keys(monthEvents).forEach(day => {
+                monthEvents[day].forEach(eventName => {
+                    const dayStr = day < 10 ? `0${day}` : day;
+                    eventsList.push({
+                        date: `${dayStr} ${monthName}`,
+                        name: eventName
+                    });
+                });
+            });
+            
+            if (eventsList.length === 0) {
+                container.innerHTML = '<div class="un-day-item"><span>No Indian calendar events found for this month</span></div>';
+                return;
+            }
+            
+            container.innerHTML = eventsList.map((event, index) => `
+                <div class="un-day-item">
+                    <input type="checkbox" id="indianAddDay${index}" value="${event.date}|${event.name}">
+                    <label for="indianAddDay${index}" class="un-day-label">
+                        <span class="un-day-date">${event.date}</span><br>
+                        ${event.name}
+                    </label>
+                </div>
+            `).join('');
+        }
+        
+        function addIndianDays() {
+            const checkboxes = document.querySelectorAll('#indianDaysCheckboxes input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                document.getElementById('status').innerHTML = '<div class="error">❌ Please select Indian calendar events to add</div>';
+                return;
+            }
+            
+            // Parse selected Indian days and add to addedEvents
+            checkboxes.forEach(checkbox => {
+                const [date, name] = checkbox.value.split('|');
+                const day = parseInt(date.split(' ')[0]);
+                if (!addedEvents[day]) addedEvents[day] = [];
+                const eventName = `[Indian] ${name}`;
+                if (!addedEvents[day].includes(eventName)) {
+                    addedEvents[day].push(eventName);
+                }
+            });
+            
+            regenerateCalendarWithAddedEvents();
+            document.getElementById('status').innerHTML = '<div class="success">✅ Indian calendar events added</div>';
+        }
+        
+        function regenerateCalendarWithAddedEvents() {
+            const monthDays = {Jan: 31, Feb: 28, Mar: 31, Apr: 30, May: 31, Jun: 30, Jul: 31, Aug: 31, Sep: 30, Oct: 31, Nov: 30, Dec: 31};
+            const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            // Merge original events with added events
+            const mergedEvents = JSON.parse(JSON.stringify(currentMonthlyEvents));
+            Object.keys(addedEvents).forEach(day => {
+                const dayNum = parseInt(day);
+                Object.keys(mergedEvents).forEach(month => {
+                    if (!mergedEvents[month][dayNum]) mergedEvents[month][dayNum] = [];
+                    mergedEvents[month][dayNum] = mergedEvents[month][dayNum].concat(addedEvents[day]);
+                });
+            });
+            
+            // Regenerate text
+            let text = '';
+            monthOrder.forEach(month => {
+                if (mergedEvents[month]) {
+                    text += `${month} Planner\n\n`;
+                    
+                    for (let day = 1; day <= monthDays[month]; day++) {
+                        if (mergedEvents[month][day]) {
+                            const eventNames = mergedEvents[month][day];
+                            const dayStr = day < 10 ? ` ${day}` : `${day}`;
+                            text += `${dayStr}. ${eventNames[0]}\n`;
+                            for (let i = 1; i < eventNames.length; i++) {
+                                text += `    ${eventNames[i]}\n`;
+                            }
+                        } else {
+                            const dayStr = day < 10 ? ` ${day}` : `${day}`;
+                            text += `${dayStr}.\n`;
+                        }
+                    }
+                    text += '\n';
+                }
+            });
+            
+            document.getElementById('outputText').value = text;
         }
         
         function copyToClipboard() {
@@ -351,6 +875,212 @@
             }, 2000);
         }
         
+        const unDaysData = {
+            1: [{date: '01 Jan', name: 'New Year\'s Day'}, {date: '04 Jan', name: 'World Braille Day'}, {date: '24 Jan', name: 'International Day of Education'}, {date: '26 Jan', name: 'International Day of Clean Energy'}, {date: '27 Jan', name: 'International Day of Commemoration in Memory of the Victims of the Holocaust'}, {date: '28 Jan', name: 'International Day of Peaceful Coexistence'}],
+            2: [{date: '02 Feb', name: 'World Wetlands Day'}, {date: '04 Feb', name: 'World Cancer Day'}, {date: '06 Feb', name: 'International Day of Zero Tolerance to Female Genital Mutilation'}, {date: '11 Feb', name: 'International Day of Women and Girls in Science'}, {date: '13 Feb', name: 'World Radio Day'}, {date: '14 Feb', name: 'Valentine\'s Day'}, {date: '20 Feb', name: 'World Day of Social Justice'}, {date: '21 Feb', name: 'International Mother Language Day'}],
+            3: [{date: '01 Mar', name: 'Zero Discrimination Day'}, {date: '03 Mar', name: 'World Wildlife Day'}, {date: '08 Mar', name: 'International Women\'s Day'}, {date: '20 Mar', name: 'International Day of Happiness'}, {date: '21 Mar', name: 'International Day for the Elimination of Racial Discrimination'}, {date: '21 Mar', name: 'World Poetry Day'}, {date: '21 Mar', name: 'International Day of Nowruz'}, {date: '21 Mar', name: 'World Down Syndrome Day'}, {date: '22 Mar', name: 'World Water Day'}, {date: '23 Mar', name: 'World Meteorological Day'}, {date: '24 Mar', name: 'World Tuberculosis Day'}, {date: '25 Mar', name: 'International Day of Remembrance of the Victims of Slavery and the Transatlantic Slave Trade'}],
+            4: [{date: '02 Apr', name: 'World Autism Awareness Day'}, {date: '04 Apr', name: 'International Day for Mine Awareness and Assistance in Mine Action'}, {date: '05 Apr', name: 'International Day of Conscience'}, {date: '06 Apr', name: 'International Day of Sport for Development and Peace'}, {date: '07 Apr', name: 'World Health Day'}, {date: '07 Apr', name: 'International Day of Reflection on the 1994 Genocide against the Tutsi in Rwanda'}, {date: '12 Apr', name: 'International Day of Human Space Flight'}, {date: '20 Apr', name: 'Chinese Language Day'}, {date: '21 Apr', name: 'World Creativity and Innovation Day'}, {date: '22 Apr', name: 'International Mother Earth Day'}, {date: '23 Apr', name: 'World Book and Copyright Day'}, {date: '23 Apr', name: 'English Language Day'}, {date: '24 Apr', name: 'International Day of Multilateralism and Diplomacy for Peace'}, {date: '25 Apr', name: 'World Malaria Day'}, {date: '26 Apr', name: 'World Intellectual Property Day'}, {date: '28 Apr', name: 'World Day for Safety and Health at Work'}, {date: '30 Apr', name: 'International Jazz Day'}],
+            5: [{date: '01 May', name: 'Labour Day'}, {date: '03 May', name: 'World Press Freedom Day'}, {date: '08 May', name: 'Time of Remembrance and Reconciliation for Those Who Lost Their Lives during the Second World War'}, {date: '09 May', name: 'Time of Remembrance and Reconciliation for Those Who Lost Their Lives during the Second World War'}, {date: '15 May', name: 'International Day of Families'}, {date: '16 May', name: 'International Day of Living Together in Peace'}, {date: '17 May', name: 'World Telecommunication and Information Society Day'}, {date: '20 May', name: 'World Bee Day'}, {date: '21 May', name: 'World Day for Cultural Diversity for Dialogue and Development'}, {date: '22 May', name: 'International Day for Biological Diversity'}, {date: '23 May', name: 'International Day to End Obstetric Fistula'}, {date: '29 May', name: 'International Day of UN Peacekeepers'}, {date: '31 May', name: 'World No Tobacco Day'}],
+            6: [{date: '01 Jun', name: 'Global Day of Parents'}, {date: '03 Jun', name: 'World Bicycle Day'}, {date: '04 Jun', name: 'International Day of Innocent Children Victims of Aggression'}, {date: '05 Jun', name: 'World Environment Day'}, {date: '06 Jun', name: 'Russian Language Day'}, {date: '08 Jun', name: 'World Oceans Day'}, {date: '12 Jun', name: 'World Day Against Child Labour'}, {date: '13 Jun', name: 'International Albinism Awareness Day'}, {date: '14 Jun', name: 'World Blood Donor Day'}, {date: '15 Jun', name: 'World Elder Abuse Awareness Day'}, {date: '16 Jun', name: 'International Day of Family Remittances'}, {date: '17 Jun', name: 'World Day to Combat Desertification and Drought'}, {date: '18 Jun', name: 'Sustainable Gastronomy Day'}, {date: '19 Jun', name: 'International Day for the Elimination of Sexual Violence in Conflict'}, {date: '20 Jun', name: 'World Refugee Day'}, {date: '21 Jun', name: 'International Day of Yoga'}, {date: '23 Jun', name: 'International Widows\' Day'}, {date: '23 Jun', name: 'United Nations Public Service Day'}, {date: '25 Jun', name: 'Day of the Seafarer'}, {date: '26 Jun', name: 'International Day against Drug Abuse and Illicit Trafficking'}, {date: '26 Jun', name: 'United Nations International Day in Support of Victims of Torture'}, {date: '27 Jun', name: 'Micro-, Small and Medium-sized Enterprises Day'}, {date: '29 Jun', name: 'International Day of the Tropics'}, {date: '30 Jun', name: 'International Asteroid Day'}],
+            7: [{date: '11 Jul', name: 'World Population Day'}, {date: '15 Jul', name: 'World Youth Skills Day'}, {date: '18 Jul', name: 'Nelson Mandela International Day'}, {date: '28 Jul', name: 'World Hepatitis Day'}, {date: '30 Jul', name: 'International Day of Friendship'}, {date: '30 Jul', name: 'World Day against Trafficking in Persons'}],
+            8: [{date: '09 Aug', name: 'International Day of the World\'s Indigenous Peoples'}, {date: '12 Aug', name: 'International Youth Day'}, {date: '19 Aug', name: 'World Humanitarian Day'}, {date: '23 Aug', name: 'International Day for the Remembrance of the Slave Trade and its Abolition'}, {date: '29 Aug', name: 'International Day against Nuclear Tests'}, {date: '30 Aug', name: 'International Day of the Victims of Enforced Disappearances'}],
+            9: [{date: '05 Sep', name: 'International Day of Charity'}, {date: '08 Sep', name: 'International Literacy Day'}, {date: '10 Sep', name: 'World Suicide Prevention Day'}, {date: '15 Sep', name: 'International Day of Democracy'}, {date: '16 Sep', name: 'International Day for the Preservation of the Ozone Layer'}, {date: '21 Sep', name: 'International Day of Peace'}, {date: '23 Sep', name: 'International Day of Sign Languages'}, {date: '26 Sep', name: 'International Day for the Total Elimination of Nuclear Weapons'}, {date: '27 Sep', name: 'World Tourism Day'}, {date: '28 Sep', name: 'World Rabies Day'}, {date: '30 Sep', name: 'International Translation Day'}],
+            10: [{date: '01 Oct', name: 'International Day of Older Persons'}, {date: '02 Oct', name: 'International Day of Non-Violence'}, {date: '05 Oct', name: 'World Teachers\' Day'}, {date: '09 Oct', name: 'World Post Day'}, {date: '10 Oct', name: 'World Mental Health Day'}, {date: '11 Oct', name: 'International Day of the Girl Child'}, {date: '13 Oct', name: 'International Day for Disaster Risk Reduction'}, {date: '15 Oct', name: 'International Day of Rural Women'}, {date: '16 Oct', name: 'World Food Day'}, {date: '17 Oct', name: 'International Day for the Eradication of Poverty'}, {date: '20 Oct', name: 'World Statistics Day'}, {date: '24 Oct', name: 'United Nations Day'}, {date: '24 Oct', name: 'World Development Information Day'}, {date: '27 Oct', name: 'World Day for Audiovisual Heritage'}, {date: '31 Oct', name: 'Halloween'}, {date: '31 Oct', name: 'World Cities Day'}],
+            11: [{date: '02 Nov', name: 'International Day to End Impunity for Crimes against Journalists'}, {date: '06 Nov', name: 'International Day for Preventing the Exploitation of the Environment in War and Armed Conflict'}, {date: '10 Nov', name: 'World Science Day for Peace and Development'}, {date: '14 Nov', name: 'World Diabetes Day'}, {date: '16 Nov', name: 'International Day for Tolerance'}, {date: '19 Nov', name: 'World Toilet Day'}, {date: '20 Nov', name: 'Africa Industrialization Day'}, {date: '20 Nov', name: 'World Children\'s Day'}, {date: '20 Nov', name: 'Universal Children\'s Day'}, {date: '21 Nov', name: 'World Television Day'}, {date: '25 Nov', name: 'International Day for the Elimination of Violence against Women'}, {date: '29 Nov', name: 'International Day of Solidarity with the Palestinian People'}],
+            12: [{date: '01 Dec', name: 'World AIDS Day'}, {date: '02 Dec', name: 'International Day for the Abolition of Slavery'}, {date: '03 Dec', name: 'International Day of Persons with Disabilities'}, {date: '05 Dec', name: 'International Volunteer Day for Economic and Social Development'}, {date: '07 Dec', name: 'International Civil Aviation Day'}, {date: '09 Dec', name: 'International Anti-Corruption Day'}, {date: '10 Dec', name: 'Human Rights Day'}, {date: '11 Dec', name: 'International Mountain Day'}, {date: '18 Dec', name: 'International Migrants Day'}, {date: '20 Dec', name: 'International Human Solidarity Day'}, {date: '25 Dec', name: 'Christmas Day'}, {date: '31 Dec', name: 'New Year\'s Eve'}]
+        };
+        
+        function toggleCalendarType() {
+            const type = document.getElementById('calendarType').value;
+            const iskconControls = document.getElementById('iskconControls');
+            const indianControls = document.getElementById('indianControls');
+            const unControls = document.getElementById('unControls');
+            const unDaysSection = document.getElementById('unDaysSection');
+            const indianDaysSection = document.getElementById('indianDaysSection');
+            const unAddSection = document.getElementById('unAddSection');
+            const indianAddSection = document.getElementById('indianAddSection');
+            const outputSection = document.getElementById('outputSection');
+            
+            // Hide all sections first
+            iskconControls.style.display = 'none';
+            indianControls.style.display = 'none';
+            unControls.style.display = 'none';
+            unDaysSection.style.display = 'none';
+            indianDaysSection.style.display = 'none';
+            unAddSection.style.display = 'none';
+            indianAddSection.style.display = 'none';
+            outputSection.style.display = 'none';
+            
+            if (type === 'un') {
+                unControls.style.display = 'flex';
+                unDaysSection.style.display = 'block';
+                loadUNDays();
+            } else if (type === 'indian') {
+                indianControls.style.display = 'flex';
+                document.getElementById('indianDaysSection').style.display = 'block';
+                loadIndianEvents();
+            } else {
+                iskconControls.style.display = 'flex';
+            }
+        }
+        
+        function loadUNDays() {
+            const month = parseInt(document.getElementById('unMonthSelect').value);
+            const daysList = document.getElementById('unDaysList');
+            const days = unDaysData[month] || [];
+            
+            daysList.innerHTML = days.map((day, index) => `
+                <div class="un-day-item">
+                    <input type="checkbox" id="unDay${index}" value="${day.date}|${day.name}">
+                    <label for="unDay${index}" class="un-day-label">
+                        <span class="un-day-date">${day.date}</span><br>
+                        ${day.name}
+                    </label>
+                </div>
+            `).join('');
+        }
+        
+        function generateUNCalendar() {
+            const checkboxes = document.querySelectorAll('#unDaysList input[type="checkbox"]:checked');
+            const selectedDays = Array.from(checkboxes).map(cb => {
+                const [date, name] = cb.value.split('|');
+                return { date, name };
+            });
+            
+            if (selectedDays.length === 0) {
+                document.getElementById('status').innerHTML = '<div class="error">❌ Please select at least one international day</div>';
+                return;
+            }
+            
+            const monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const month = parseInt(document.getElementById('unMonthSelect').value);
+            const monthName = monthNames[month];
+            
+            let text = `${monthName} - UN International Days\n\n`;
+            selectedDays.forEach(day => {
+                text += `${day.date} - ${day.name}\n`;
+            });
+            
+            document.getElementById('outputText').value = text;
+            document.getElementById('outputSection').style.display = 'block';
+            document.getElementById('status').innerHTML = '';
+        }
+        
+        function loadIndianEvents() {
+            const month = parseInt(document.getElementById('indianMonthSelect').value);
+            const year = document.getElementById('indianYearSelect').value;
+            const eventsList = document.getElementById('indianEventsList');
+            
+            eventsList.innerHTML = '<div class="un-day-item"><span>Loading Indian calendar events...</span></div>';
+            
+            // Use cached events if available
+            const cacheKey = `${year}-${month}`;
+            if (cachedIndianEvents[cacheKey]) {
+                displayIndianEventsSelection(cachedIndianEvents[cacheKey], month, eventsList);
+                return;
+            }
+            
+            // Scrape Indian events for the selected year and month
+            scrapeIndianEventsForSelection(year, month, eventsList);
+        }
+        
+        async function scrapeIndianEventsForSelection(year, month, container) {
+            const targetUrl = `https://www.drikpanchang.com/calendars/indian/indiancalendar.html?year=${year}`;
+            const proxies = [
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+                `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(targetUrl)}`,
+                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
+            ];
+            
+            for (let i = 0; i < proxies.length; i++) {
+                try {
+                    const response = await fetch(proxies[i]);
+                    let html;
+                    
+                    if (i === 2) {
+                        const data = await response.json();
+                        html = data.contents;
+                    } else {
+                        html = await response.text();
+                    }
+                    
+                    if (html && (html.includes('dpEventInfo') || html.includes('dpCalendarDate'))) {
+                        const events = parseIndianEvents(html);
+                        const monthlyEvents = groupEventsByMonth(events, month);
+                        
+                        // Cache the events
+                        const cacheKey = `${year}-${month}`;
+                        cachedIndianEvents[cacheKey] = monthlyEvents;
+                        
+                        displayIndianEventsSelection(monthlyEvents, month, container);
+                        return;
+                    }
+                } catch (error) {
+                    console.log(`Indian events proxy ${i + 1} failed:`, error);
+                }
+            }
+            
+            container.innerHTML = '<div class="un-day-item"><span>Failed to load Indian calendar events</span></div>';
+        }
+        
+        function displayIndianEventsSelection(monthlyEvents, monthNum, container) {
+            const monthNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthName = monthNames[monthNum];
+            const monthEvents = monthlyEvents[monthName] || {};
+            
+            const eventsList = [];
+            Object.keys(monthEvents).forEach(day => {
+                monthEvents[day].forEach(eventName => {
+                    const dayStr = day < 10 ? `0${day}` : day;
+                    eventsList.push({
+                        date: `${dayStr} ${monthName}`,
+                        name: eventName
+                    });
+                });
+            });
+            
+            if (eventsList.length === 0) {
+                container.innerHTML = '<div class="un-day-item"><span>No Indian calendar events found for this month</span></div>';
+                return;
+            }
+            
+            container.innerHTML = eventsList.map((event, index) => `
+                <div class="un-day-item">
+                    <input type="checkbox" id="indianEvent${index}" value="${event.date}|${event.name}">
+                    <label for="indianEvent${index}" class="un-day-label">
+                        <span class="un-day-date">${event.date}</span><br>
+                        ${event.name}
+                    </label>
+                </div>
+            `).join('');
+        }
+        
+        function generateIndianCalendar() {
+            const checkboxes = document.querySelectorAll('#indianEventsList input[type="checkbox"]:checked');
+            const selectedEvents = Array.from(checkboxes).map(cb => {
+                const [date, name] = cb.value.split('|');
+                return { date, name };
+            });
+            
+            if (selectedEvents.length === 0) {
+                document.getElementById('status').innerHTML = '<div class="error">❌ Please select at least one Indian calendar event</div>';
+                return;
+            }
+            
+            const monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const month = parseInt(document.getElementById('indianMonthSelect').value);
+            const monthName = monthNames[month];
+            
+            let text = `${monthName} - Indian Calendar Events\n\n`;
+            selectedEvents.forEach(event => {
+                text += `${event.date} - ${event.name}\n`;
+            });
+            
+            document.getElementById('outputText').value = text;
+            document.getElementById('outputSection').style.display = 'block';
+            document.getElementById('status').innerHTML = '';
+        }
+        
         // Test connection on page load
         window.addEventListener('load', () => {
             const status = document.getElementById('status');
@@ -364,6 +1094,8 @@
             } else {
                 status.innerHTML = '<div class="success">🚀 Ready to scrape events. Works best when deployed.</div>';
             }
+            
+            loadUNDays(); // Load June days by default
         });
     </script>
 </body>
