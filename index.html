@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drik Panchang Scraper</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .controls { margin-bottom: 20px; }
+        select, button { padding: 8px; margin: 5px; font-size: 16px; }
+        button { background: #007cba; color: white; border: none; cursor: pointer; }
+        button:hover { background: #005a87; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .loading { color: #666; }
+        .error { color: red; }
+        .results { margin-top: 20px; }
+        .month-section { margin-bottom: 30px; }
+        .month-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .event-day { margin: 2px 0; }
+        .event-name { margin-left: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Drik Panchang Event Calendar</h1>
+    
+    <div class="controls">
+        <select id="yearSelect">
+            <option value="2024">2024</option>
+            <option value="2025" selected>2025</option>
+            <option value="2026">2026</option>
+        </select>
+        
+        <select id="monthSelect">
+            <option value="">All Months</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
+        
+        <button onclick="scrapeEvents()">Get Events</button>
+    </div>
+    
+    <div id="status"></div>
+    <div id="results" class="results"></div>
+
+    <script>
+        async function scrapeEvents() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            const status = document.getElementById('status');
+            const results = document.getElementById('results');
+            
+            status.innerHTML = '<div class="loading">Loading events...</div>';
+            results.innerHTML = '';
+            
+            try {
+                const response = await fetch(`http://localhost:5000/scrape?year=${year}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const monthlyEvents = groupEventsByMonth(data.events, month);
+                    displayResults(monthlyEvents);
+                    status.innerHTML = `<div>Found ${data.events.length} events</div>`;
+                } else {
+                    status.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                status.innerHTML = `<div class="error">Error: Make sure Flask server is running (python server.py)</div>`;
+            }
+        }
+        
+
+        
+        function groupEventsByMonth(events, filterMonth) {
+            const monthlyEvents = {};
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            events.forEach(event => {
+                try {
+                    const datePart = event.date.split(',')[0] + ', ' + event.date.split(',')[1].trim();
+                    const date = new Date(datePart);
+                    const monthIndex = date.getMonth();
+                    const day = date.getDate();
+                    const monthName = monthNames[monthIndex];
+                    
+                    if (filterMonth && (monthIndex + 1) != filterMonth) return;
+                    
+                    if (!monthlyEvents[monthName]) monthlyEvents[monthName] = {};
+                    if (!monthlyEvents[monthName][day]) monthlyEvents[monthName][day] = [];
+                    monthlyEvents[monthName][day].push(event.name);
+                } catch (e) {
+                    console.error('Date parsing error:', e);
+                }
+            });
+            
+            return monthlyEvents;
+        }
+        
+        function displayResults(monthlyEvents) {
+            const results = document.getElementById('results');
+            const monthDays = {Jan: 31, Feb: 28, Mar: 31, Apr: 30, May: 31, Jun: 30, Jul: 31, Aug: 31, Sep: 30, Oct: 31, Nov: 30, Dec: 31};
+            const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            let html = '';
+            
+            monthOrder.forEach(month => {
+                if (monthlyEvents[month]) {
+                    html += `<div class="month-section">`;
+                    html += `<div class="month-title">${month} Planner</div>`;
+                    
+                    for (let day = 1; day <= monthDays[month]; day++) {
+                        if (monthlyEvents[month][day]) {
+                            const eventNames = monthlyEvents[month][day];
+                            html += `<div class="event-day">${day}. ${eventNames[0]}</div>`;
+                            for (let i = 1; i < eventNames.length; i++) {
+                                html += `<div class="event-name">${eventNames[i]}</div>`;
+                            }
+                        } else {
+                            html += `<div class="event-day">${day}.</div>`;
+                        }
+                    }
+                    html += `</div>`;
+                }
+            });
+            
+            results.innerHTML = html;
+        }
+        
+        // Test connection on page load
+        window.addEventListener('load', () => {
+            const status = document.getElementById('status');
+            status.innerHTML = '<div>Ready to scrape events. Make sure Flask server is running: <code>python server.py</code></div>';
+        });
+    </script>
+</body>
+</html>
