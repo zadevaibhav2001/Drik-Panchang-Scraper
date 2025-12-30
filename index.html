@@ -288,6 +288,7 @@
                     <option value="iskcon">ISKCON Events</option>
                     <option value="indian">Indian National Days</option>
                     <option value="un">UN International Days</option>
+                    <option value="maharaj">ISKCON Maharaj Days</option>
                 </select>
             </div>
             
@@ -364,6 +365,14 @@
                 </div>
             </div>
             
+            <div id="maharajAddSection" style="display: none;">
+                <h3>🕉️ Add ISKCON Maharaj Days:</h3>
+                <div id="maharajDaysCheckboxes" class="un-days-list"></div>
+                <div class="un-button-container">
+                    <button onclick="addMaharajDays()">➕ Add Selected to Calendar</button>
+                </div>
+            </div>
+            
             <div id="unControls" class="controls" style="display: none;">
                 <label>📆 Month:</label>
                 <select id="unMonthSelect" onchange="loadUNDays()">
@@ -384,6 +393,26 @@
                 <button onclick="generateUNCalendar()">📋 Generate Calendar</button>
             </div>
             
+            <div id="maharajControls" class="controls" style="display: none;">
+                <label>📆 Month:</label>
+                <select id="maharajMonthSelect" onchange="loadMaharajDays()">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6" selected>June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                
+                <button onclick="generateMaharajCalendar()">📋 Generate Calendar</button>
+            </div>
+            
             <div id="unDaysSection" style="display: none;">
                 <h3>Select International Days:</h3>
                 <div id="unDaysList" class="un-days-list"></div>
@@ -392,6 +421,11 @@
             <div id="indianDaysSection" style="display: none;">
                 <h3>Select Indian National Days:</h3>
                 <div id="indianEventsList" class="un-days-list"></div>
+            </div>
+            
+            <div id="maharajDaysSection" style="display: none;">
+                <h3>Select ISKCON Maharaj Days:</h3>
+                <div id="maharajEventsList" class="un-days-list"></div>
             </div>
             
             <div id="status"></div>
@@ -672,6 +706,8 @@
                     document.getElementById('unAddSection').style.display = 'flex';
                     loadIndianDaysForMonth(parseInt(selectedMonth));
                     document.getElementById('indianAddSection').style.display = 'flex';
+                    loadMaharajDaysForMonth(parseInt(selectedMonth));
+                    document.getElementById('maharajAddSection').style.display = 'flex';
                 }
             }
         }
@@ -715,6 +751,7 @@
         }
         
         let indianNationalDaysData = {};
+        let iskconMaharajDaysData = {};
         
         // Load Indian National Days data from JSON file
         async function loadIndianNationalDaysData() {
@@ -735,6 +772,26 @@
                     ],
                     october: [
                         {date: "2nd October", event: "Gandhi Jayanti", month: "October"}
+                    ]
+                };
+            }
+        }
+        
+        // Load ISKCON Maharaj Days data from JSON file
+        async function loadISKCONMaharajDaysData() {
+            try {
+                const response = await fetch('./iskcon_maharaj_days.json');
+                iskconMaharajDaysData = await response.json();
+                console.log('ISKCON Maharaj Days data loaded successfully');
+            } catch (error) {
+                console.error('Failed to load ISKCON Maharaj Days data:', error);
+                // Fallback data if JSON fails to load
+                iskconMaharajDaysData = {
+                    february: [
+                        {date: "09 February", event: "HH Gaur Govinda Swami Maharaj - Disappearance Day", month: "February", type: "disappearance"}
+                    ],
+                    september: [
+                        {date: "17 September", event: "HH Bhakti Charu Swami Maharaj - Appearance Day", month: "September", type: "appearance"}
                     ]
                 };
             }
@@ -814,6 +871,64 @@
             document.getElementById('status').innerHTML = '<div class="success">✅ Indian national days added</div>';
         }
         
+        async function loadMaharajDaysForMonth(monthNum) {
+            const container = document.getElementById('maharajDaysCheckboxes');
+            
+            // Ensure data is loaded
+            if (Object.keys(iskconMaharajDaysData).length === 0) {
+                await loadISKCONMaharajDaysData();
+            }
+            
+            container.innerHTML = '<div class="un-day-item"><span>Loading ISKCON Maharaj days...</span></div>';
+            
+            const monthNames = ['', 'january', 'february', 'march', 'april', 'may', 'june', 
+                               'july', 'august', 'september', 'october', 'november', 'december'];
+            const monthKey = monthNames[monthNum];
+            const monthEvents = iskconMaharajDaysData[monthKey] || [];
+            
+            if (monthEvents.length === 0) {
+                container.innerHTML = '<div class="un-day-item"><span>No ISKCON Maharaj days found for this month</span></div>';
+                return;
+            }
+            
+            container.innerHTML = monthEvents.map((event, index) => {
+                const typeIcon = event.type === 'appearance' ? '🎂' : '🙏';
+                const typeText = event.type === 'appearance' ? 'Appearance' : 'Disappearance';
+                return `
+                    <div class="un-day-item">
+                        <input type="checkbox" id="maharajAddDay${index}" value="${event.date}|${event.event}">
+                        <label for="maharajAddDay${index}" class="un-day-label">
+                            <span class="un-day-date">${event.date}</span><br>
+                            ${typeIcon} ${event.event}
+                        </label>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function addMaharajDays() {
+            const checkboxes = document.querySelectorAll('#maharajDaysCheckboxes input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                document.getElementById('status').innerHTML = '<div class="error">❌ Please select ISKCON Maharaj days to add</div>';
+                return;
+            }
+            
+            // Parse selected Maharaj days and add to addedEvents
+            checkboxes.forEach(checkbox => {
+                const [date, name] = checkbox.value.split('|');
+                const day = parseInt(date.split(' ')[0]);
+                if (!addedEvents[day]) addedEvents[day] = [];
+                const eventName = `[ISKCON] ${name}`;
+                if (!addedEvents[day].includes(eventName)) {
+                    addedEvents[day].push(eventName);
+                }
+            });
+            
+            regenerateCalendarWithAddedEvents();
+            document.getElementById('status').innerHTML = '<div class="success">✅ ISKCON Maharaj days added</div>';
+        }
+        
         function regenerateCalendarWithAddedEvents() {
             const monthDays = {Jan: 31, Feb: 28, Mar: 31, Apr: 30, May: 31, Jun: 30, Jul: 31, Aug: 31, Sep: 30, Oct: 31, Nov: 30, Dec: 31};
             const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -887,20 +1002,26 @@
             const iskconControls = document.getElementById('iskconControls');
             const indianControls = document.getElementById('indianControls');
             const unControls = document.getElementById('unControls');
+            const maharajControls = document.getElementById('maharajControls');
             const unDaysSection = document.getElementById('unDaysSection');
             const indianDaysSection = document.getElementById('indianDaysSection');
+            const maharajDaysSection = document.getElementById('maharajDaysSection');
             const unAddSection = document.getElementById('unAddSection');
             const indianAddSection = document.getElementById('indianAddSection');
+            const maharajAddSection = document.getElementById('maharajAddSection');
             const outputSection = document.getElementById('outputSection');
             
             // Hide all sections first
             iskconControls.style.display = 'none';
             indianControls.style.display = 'none';
             unControls.style.display = 'none';
+            maharajControls.style.display = 'none';
             unDaysSection.style.display = 'none';
             indianDaysSection.style.display = 'none';
+            maharajDaysSection.style.display = 'none';
             unAddSection.style.display = 'none';
             indianAddSection.style.display = 'none';
+            maharajAddSection.style.display = 'none';
             outputSection.style.display = 'none';
             
             if (type === 'un') {
@@ -909,8 +1030,12 @@
                 loadUNDays();
             } else if (type === 'indian') {
                 indianControls.style.display = 'flex';
-                document.getElementById('indianDaysSection').style.display = 'block';
+                indianDaysSection.style.display = 'block';
                 loadIndianEvents();
+            } else if (type === 'maharaj') {
+                maharajControls.style.display = 'flex';
+                maharajDaysSection.style.display = 'block';
+                loadMaharajDays();
             } else {
                 iskconControls.style.display = 'flex';
             }
@@ -1036,6 +1161,68 @@
             document.getElementById('status').innerHTML = '';
         }
         
+        async function loadMaharajDays() {
+            const month = parseInt(document.getElementById('maharajMonthSelect').value);
+            const eventsList = document.getElementById('maharajEventsList');
+            
+            // Ensure data is loaded
+            if (Object.keys(iskconMaharajDaysData).length === 0) {
+                await loadISKCONMaharajDaysData();
+            }
+            
+            eventsList.innerHTML = '<div class="un-day-item"><span>Loading ISKCON Maharaj days...</span></div>';
+            
+            const monthNames = ['', 'january', 'february', 'march', 'april', 'may', 'june', 
+                               'july', 'august', 'september', 'october', 'november', 'december'];
+            const monthKey = monthNames[month];
+            const monthEvents = iskconMaharajDaysData[monthKey] || [];
+            
+            if (monthEvents.length === 0) {
+                eventsList.innerHTML = '<div class="un-day-item"><span>No ISKCON Maharaj days found for this month</span></div>';
+                return;
+            }
+            
+            eventsList.innerHTML = monthEvents.map((event, index) => {
+                const typeIcon = event.type === 'appearance' ? '🎂' : '🙏';
+                const typeColor = event.type === 'appearance' ? '#4caf50' : '#ff9800';
+                return `
+                    <div class="un-day-item">
+                        <input type="checkbox" id="maharajEvent${index}" value="${event.date}|${event.event}">
+                        <label for="maharajEvent${index}" class="un-day-label">
+                            <span class="un-day-date">${event.date}</span><br>
+                            <span style="color: ${typeColor}">${typeIcon} ${event.event}</span>
+                        </label>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function generateMaharajCalendar() {
+            const checkboxes = document.querySelectorAll('#maharajEventsList input[type="checkbox"]:checked');
+            const selectedEvents = Array.from(checkboxes).map(cb => {
+                const [date, name] = cb.value.split('|');
+                return { date, name };
+            });
+            
+            if (selectedEvents.length === 0) {
+                document.getElementById('status').innerHTML = '<div class="error">❌ Please select at least one ISKCON Maharaj day</div>';
+                return;
+            }
+            
+            const monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const month = parseInt(document.getElementById('maharajMonthSelect').value);
+            const monthName = monthNames[month];
+            
+            let text = `${monthName} - ISKCON Maharaj Days\n\n`;
+            selectedEvents.forEach(event => {
+                text += `${event.date} - ${event.name}\n`;
+            });
+            
+            document.getElementById('outputText').value = text;
+            document.getElementById('outputSection').style.display = 'block';
+            document.getElementById('status').innerHTML = '';
+        }
+        
         // Test connection on page load
         window.addEventListener('load', async () => {
             const status = document.getElementById('status');
@@ -1044,6 +1231,9 @@
             
             // Load Indian National Days data
             await loadIndianNationalDaysData();
+            
+            // Load ISKCON Maharaj Days data
+            await loadISKCONMaharajDaysData();
             
             if (isNetlify) {
                 status.innerHTML = '<div class="success">🚀 Ready to scrape events (Netlify mode)</div>';

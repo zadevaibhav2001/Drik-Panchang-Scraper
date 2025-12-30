@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test ISKCON Maharaj Days Integration</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .event { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .date { font-weight: bold; color: #ff6b35; }
+        .event-name { color: #333; }
+        .month-section { margin: 20px 0; }
+        .month-header { background: #fff5f0; padding: 10px; font-weight: bold; }
+        .appearance { background: #e8f5e8; }
+        .disappearance { background: #fff3cd; }
+        .type { font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>🕉️ ISKCON Maharaj Days Test</h1>
+    <div id="content">Loading...</div>
+
+    <script>
+        async function loadAndDisplayMaharajDays() {
+            try {
+                const response = await fetch('./iskcon_maharaj_days.json');
+                const data = await response.json();
+                
+                const content = document.getElementById('content');
+                let html = '<h2>ISKCON Maharaj Days loaded successfully!</h2>';
+                
+                // Display all months with events
+                const monthOrder = ['january', 'february', 'march', 'april', 'may', 'june',
+                                   'july', 'august', 'september', 'october', 'november', 'december'];
+                
+                let totalEvents = 0;
+                let appearances = 0;
+                let disappearances = 0;
+                
+                monthOrder.forEach(month => {
+                    const events = data[month] || [];
+                    if (events.length > 0) {
+                        totalEvents += events.length;
+                        
+                        html += `<div class="month-section">`;
+                        html += `<div class="month-header">${month.charAt(0).toUpperCase() + month.slice(1)} (${events.length} events)</div>`;
+                        
+                        events.forEach(event => {
+                            const typeClass = event.type === 'appearance' ? 'appearance' : 'disappearance';
+                            const typeIcon = event.type === 'appearance' ? '🎂' : '🙏';
+                            const typeText = event.type === 'appearance' ? 'Appearance' : 'Disappearance';
+                            
+                            if (event.type === 'appearance') appearances++;
+                            else disappearances++;
+                            
+                            html += `<div class="event ${typeClass}">`;
+                            html += `<span class="date">${event.date}</span> - `;
+                            html += `<span class="event-name">${event.event}</span>`;
+                            html += `<div class="type">${typeIcon} ${typeText} Day</div>`;
+                            html += `</div>`;
+                        });
+                        
+                        html += `</div>`;
+                    }
+                });
+                
+                // Add summary
+                html = `<div style="background: #fff5f0; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <h3>📊 Summary</h3>
+                    <p><strong>Total Events:</strong> ${totalEvents}</p>
+                    <p><strong>Appearances:</strong> ${appearances} 🎂</p>
+                    <p><strong>Disappearances:</strong> ${disappearances} 🙏</p>
+                </div>` + html;
+                
+                content.innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('content').innerHTML = `<p style="color: red;">Error loading data: ${error.message}</p>`;
+            }
+        }
+        
+        // Load data when page loads
+        window.addEventListener('load', loadAndDisplayMaharajDays);
+    </script>
+</body>
+</html>

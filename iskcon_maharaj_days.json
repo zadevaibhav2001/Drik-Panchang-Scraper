@@ -1,0 +1,163 @@
+{
+  "january": [],
+  "february": [
+    {
+      "date": "09 February",
+      "event": "HH Gaur Govinda Swami Maharaj - Disappearance Day",
+      "month": "February",
+      "type": "disappearance"
+    },
+    {
+      "date": "15 February",
+      "event": "HH Sacinandana Swami Maharaj - Appearance Day",
+      "month": "February",
+      "type": "appearance"
+    },
+    {
+      "date": "25 February",
+      "event": "HH Bhakti Tirtha Swami Maharaj - Appearance Day",
+      "month": "February",
+      "type": "appearance"
+    }
+  ],
+  "march": [
+    {
+      "date": "09 March",
+      "event": "HH Kadamba Kanana Swami Maharaj - Disappearance Day",
+      "month": "March",
+      "type": "disappearance"
+    },
+    {
+      "date": "15 March",
+      "event": "HH Tamala Krishna Goswami Maharaj - Disappearance Day",
+      "month": "March",
+      "type": "disappearance"
+    }
+  ],
+  "april": [
+    {
+      "date": "09 April",
+      "event": "HH Jayapataka Swami Maharaj - Appearance Day",
+      "month": "April",
+      "type": "appearance"
+    },
+    {
+      "date": "12 April",
+      "event": "HH Kadamba Kanana Swami Maharaj - Appearance Day",
+      "month": "April",
+      "type": "appearance"
+    }
+  ],
+  "may": [
+    {
+      "date": "05 May",
+      "event": "HH Gopala Krishna Goswami Maharaj - Disappearance Day",
+      "month": "May",
+      "type": "disappearance"
+    },
+    {
+      "date": "20 May",
+      "event": "HH Indradyumna Swami Maharaj - Appearance Day",
+      "month": "May",
+      "type": "appearance"
+    }
+  ],
+  "june": [
+    {
+      "date": "18 June",
+      "event": "HH Tamala Krishna Goswami Maharaj - Appearance Day",
+      "month": "June",
+      "type": "appearance"
+    },
+    {
+      "date": "27 June",
+      "event": "HH Bhakti Tirtha Swami Maharaj - Disappearance Day",
+      "month": "June",
+      "type": "disappearance"
+    },
+    {
+      "date": "28 June",
+      "event": "HH Radha Govinda Dasa Goswami Maharaj - Appearance Day",
+      "month": "June",
+      "type": "appearance"
+    }
+  ],
+  "july": [
+    {
+      "date": "04 July",
+      "event": "HH Bhakti Charu Swami Maharaj - Disappearance Day",
+      "month": "July",
+      "type": "disappearance"
+    },
+    {
+      "date": "06 July",
+      "event": "HH Lokanatha Swami Maharaj - Appearance Day",
+      "month": "July",
+      "type": "appearance"
+    }
+  ],
+  "august": [
+    {
+      "date": "14 August",
+      "event": "HH Gopala Krishna Goswami Maharaj - Appearance Day",
+      "month": "August",
+      "type": "appearance"
+    }
+  ],
+  "september": [
+    {
+      "date": "02 September",
+      "event": "HH Gaur Govinda Swami Maharaj - Appearance Day",
+      "month": "September",
+      "type": "appearance"
+    },
+    {
+      "date": "13 September",
+      "event": "HH Giriraj Swami Maharaj - Appearance Day",
+      "month": "September",
+      "type": "appearance"
+    },
+    {
+      "date": "17 September",
+      "event": "HH Bhakti Charu Swami Maharaj - Appearance Day",
+      "month": "September",
+      "type": "appearance"
+    }
+  ],
+  "october": [
+    {
+      "date": "02 October",
+      "event": "HH Bhakti Swaroop Damodar Swami Maharaj - Disappearance Day",
+      "month": "October",
+      "type": "disappearance"
+    }
+  ],
+  "november": [
+    {
+      "date": "02 November",
+      "event": "HH Jayadvaita Swami Maharaj - Appearance Day",
+      "month": "November",
+      "type": "appearance"
+    }
+  ],
+  "december": [
+    {
+      "date": "06 December",
+      "event": "HH Satsvarupa Dasa Goswami Maharaj - Appearance Day",
+      "month": "December",
+      "type": "appearance"
+    },
+    {
+      "date": "07 December",
+      "event": "HH Radhanath Swami Maharaj - Appearance Day",
+      "month": "December",
+      "type": "appearance"
+    },
+    {
+      "date": "09 December",
+      "event": "HH Bhakti Swaroop Damodar Swami Maharaj - Appearance Day",
+      "month": "December",
+      "type": "appearance"
+    }
+  ]
+}

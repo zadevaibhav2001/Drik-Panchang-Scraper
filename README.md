@@ -16,6 +16,7 @@ A web scraper for ISKCON events from Drik Panchang calendar with GitHub Pages in
 1. **ISKCON Events** - Religious events from Drik Panchang
 2. **Indian National Days** - Comprehensive list of national and international days celebrated in India
 3. **UN International Days** - United Nations recognized international observances
+4. **ISKCON Maharaj Days** - **NEW**: Appearance and disappearance days of ISKCON spiritual masters
 
 ## Usage
 
@@ -30,7 +31,10 @@ A web scraper for ISKCON events from Drik Panchang calendar with GitHub Pages in
 - `index.html` - Main web interface with enhanced calendar mixing
 - `scrape_panchang.py` - Original Python scraper script
 - `scrape_indian_national_days.py` - **NEW**: Python scraper for Indian national days
+- `process_iskcon_maharaj_days.py` - **NEW**: Processor for ISKCON Maharaj days from CSV
 - `indian_national_days.json` - **NEW**: Comprehensive database of Indian national days
+- `iskcon_maharaj_days.json` - **NEW**: Database of ISKCON Maharaj appearance/disappearance days
+- `swamisiskcon.csv` - **NEW**: Source data for ISKCON spiritual masters
 - `_config.yml` - Jekyll configuration for GitHub Pages
 
 ## Data Sources
@@ -38,6 +42,7 @@ A web scraper for ISKCON events from Drik Panchang calendar with GitHub Pages in
 - **ISKCON Events**: drikpanchang.com (scraped dynamically)
 - **Indian National Days**: Career Power website (pre-scraped into JSON)
 - **UN International Days**: Hardcoded data from UN website
+- **ISKCON Maharaj Days**: swamisiskcon.csv (processed into JSON)
 
 ## Setup GitHub Pages
 
@@ -45,6 +50,24 @@ A web scraper for ISKCON events from Drik Panchang calendar with GitHub Pages in
 2. Go to repository Settings > Pages
 3. Select "Deploy from a branch" and choose "main"
 4. Your site will be available at `https://username.github.io/repository-name`
+
+## ISKCON Maharaj Days Database
+
+The `iskcon_maharaj_days.json` file contains appearance and disappearance days of ISKCON spiritual masters, including:
+
+- **Appearance Days** (🎂): Birth anniversaries of spiritual masters
+- **Disappearance Days** (🙏): Departure anniversaries of spiritual masters
+- Organized by month for easy calendar integration
+- Visual indicators for different event types
+
+### Updating ISKCON Maharaj Days
+
+To update the ISKCON Maharaj Days database:
+
+1. Update the `swamisiskcon.csv` file with new data
+2. Run the processor: `python3 process_iskcon_maharaj_days.py`
+3. This will generate updated `iskcon_maharaj_days.json` and `iskcon_maharaj_days.html` files
+4. The web interface automatically uses the JSON file
 
 ## Indian National Days Database
 

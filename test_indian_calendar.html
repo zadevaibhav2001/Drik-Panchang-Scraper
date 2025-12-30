@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Indian Calendar Integration</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .event { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .date { font-weight: bold; color: #007cba; }
+        .event-name { color: #333; }
+        .month-section { margin: 20px 0; }
+        .month-header { background: #f0f0f0; padding: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🇮🇳 Indian National Days Test</h1>
+    <div id="content">Loading...</div>
+
+    <script>
+        async function loadAndDisplayIndianDays() {
+            try {
+                const response = await fetch('./indian_national_days.json');
+                const data = await response.json();
+                
+                const content = document.getElementById('content');
+                let html = '<h2>Data loaded successfully!</h2>';
+                
+                // Display a few sample months
+                const sampleMonths = ['january', 'february', 'march', 'december'];
+                
+                sampleMonths.forEach(month => {
+                    const events = data[month] || [];
+                    if (events.length > 0) {
+                        html += `<div class="month-section">`;
+                        html += `<div class="month-header">${month.charAt(0).toUpperCase() + month.slice(1)} (${events.length} events)</div>`;
+                        
+                        events.slice(0, 5).forEach(event => {
+                            html += `<div class="event">`;
+                            html += `<span class="date">${event.date}</span> - `;
+                            html += `<span class="event-name">${event.event}</span>`;
+                            html += `</div>`;
+                        });
+                        
+                        if (events.length > 5) {
+                            html += `<div class="event">... and ${events.length - 5} more events</div>`;
+                        }
+                        
+                        html += `</div>`;
+                    }
+                });
+                
+                content.innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('content').innerHTML = `<p style="color: red;">Error loading data: ${error.message}</p>`;
+            }
+        }
+        
+        // Load data when page loads
+        window.addEventListener('load', loadAndDisplayIndianDays);
+    </script>
+</body>
+</html>
