@@ -286,7 +286,7 @@
                 <label>📅 Calendar Type:</label>
                 <select id="calendarType" onchange="toggleCalendarType()">
                     <option value="iskcon">ISKCON Events</option>
-                    <option value="indian">Indian Calendar</option>
+                    <option value="indian">Indian National Days</option>
                     <option value="un">UN International Days</option>
                 </select>
             </div>
@@ -357,7 +357,7 @@
             </div>
             
             <div id="indianAddSection" style="display: none;">
-                <h3>🇮🇳 Add Indian Calendar Events:</h3>
+                <h3>🇮🇳 Add Indian National Days:</h3>
                 <div id="indianDaysCheckboxes" class="un-days-list"></div>
                 <div class="un-button-container">
                     <button onclick="addIndianDays()">➕ Add Selected to Calendar</button>
@@ -390,7 +390,7 @@
             </div>
             
             <div id="indianDaysSection" style="display: none;">
-                <h3>Select Indian Calendar Events:</h3>
+                <h3>Select Indian National Days:</h3>
                 <div id="indianEventsList" class="un-days-list"></div>
             </div>
             
@@ -714,81 +714,73 @@
             document.getElementById('status').innerHTML = '<div class="success">✅ UN days added to calendar</div>';
         }
         
-        let cachedIndianEvents = {};
+        let indianNationalDaysData = {};
+        
+        // Load Indian National Days data from JSON file
+        async function loadIndianNationalDaysData() {
+            try {
+                const response = await fetch('./indian_national_days.json');
+                indianNationalDaysData = await response.json();
+                console.log('Indian National Days data loaded successfully');
+            } catch (error) {
+                console.error('Failed to load Indian National Days data:', error);
+                // Fallback data for key months if JSON fails to load
+                indianNationalDaysData = {
+                    january: [
+                        {date: "26th January", event: "Republic Day of India", month: "January"},
+                        {date: "30th January", event: "Martyrs Day or Shaheed Diwas", month: "January"}
+                    ],
+                    august: [
+                        {date: "15th August", event: "Independence Day", month: "August"}
+                    ],
+                    october: [
+                        {date: "2nd October", event: "Gandhi Jayanti", month: "October"}
+                    ]
+                };
+            }
+        }
         
         async function loadIndianDaysForMonth(monthNum) {
             const container = document.getElementById('indianDaysCheckboxes');
-            const year = document.getElementById('yearSelect').value;
-            const cacheKey = `${year}-${monthNum}`;
             
-            // Check if we have cached events for this year-month
-            if (cachedIndianEvents[cacheKey]) {
-                displayIndianEventsForMonth(cachedIndianEvents[cacheKey], monthNum, container);
+            // Ensure data is loaded
+            if (Object.keys(indianNationalDaysData).length === 0) {
+                await loadIndianNationalDaysData();
+            }
+            
+            container.innerHTML = '<div class="un-day-item"><span>Loading Indian national days...</span></div>';
+            
+            const monthNames = ['', 'january', 'february', 'march', 'april', 'may', 'june', 
+                               'july', 'august', 'september', 'october', 'november', 'december'];
+            const monthKey = monthNames[monthNum];
+            const monthEvents = indianNationalDaysData[monthKey] || [];
+            
+            if (monthEvents.length === 0) {
+                container.innerHTML = '<div class="un-day-item"><span>No Indian national days found for this month</span></div>';
                 return;
             }
             
-            container.innerHTML = '<div class="un-day-item"><span>Loading Indian calendar events...</span></div>';
+            // Convert to the expected format and remove duplicates
+            const uniqueEvents = [];
+            const seenEvents = new Set();
             
-            // Scrape Indian events for the selected year
-            const targetUrl = `https://www.drikpanchang.com/calendars/indian/indiancalendar.html?year=${year}`;
-            const proxies = [
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(targetUrl)}`,
-                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
-            ];
-            
-            for (let i = 0; i < proxies.length; i++) {
-                try {
-                    const response = await fetch(proxies[i]);
-                    let html;
-                    
-                    if (i === 2) {
-                        const data = await response.json();
-                        html = data.contents;
-                    } else {
-                        html = await response.text();
-                    }
-                    
-                    if (html && (html.includes('dpEventInfo') || html.includes('dpCalendarDate'))) {
-                        const events = parseIndianEvents(html);
-                        const monthlyEvents = groupEventsByMonth(events, monthNum);
-                        
-                        // Cache the events
-                        cachedIndianEvents[cacheKey] = monthlyEvents;
-                        
-                        displayIndianEventsForMonth(monthlyEvents, monthNum, container);
-                        return;
-                    }
-                } catch (error) {
-                    console.log(`Indian events proxy ${i + 1} failed:`, error);
-                }
-            }
-            
-            container.innerHTML = '<div class="un-day-item"><span>Failed to load Indian calendar events</span></div>';
-        }
-        
-        function displayIndianEventsForMonth(monthlyEvents, monthNum, container) {
-            const monthNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const monthName = monthNames[monthNum];
-            const monthEvents = monthlyEvents[monthName] || {};
-            
-            const eventsList = [];
-            Object.keys(monthEvents).forEach(day => {
-                monthEvents[day].forEach(eventName => {
-                    const dayStr = day < 10 ? `0${day}` : day;
-                    eventsList.push({
-                        date: `${dayStr} ${monthName}`,
-                        name: eventName
+            monthEvents.forEach(event => {
+                const key = `${event.date}-${event.event}`;
+                if (!seenEvents.has(key)) {
+                    seenEvents.add(key);
+                    uniqueEvents.push({
+                        date: event.date,
+                        name: event.event
                     });
-                });
+                }
             });
             
-            if (eventsList.length === 0) {
-                container.innerHTML = '<div class="un-day-item"><span>No Indian calendar events found for this month</span></div>';
+            if (uniqueEvents.length === 0) {
+                container.innerHTML = '<div class="un-day-item"><span>No Indian national days found for this month</span></div>';
                 return;
             }
             
-            container.innerHTML = eventsList.map((event, index) => `
+            container.innerHTML = uniqueEvents.map((event, index) => `
                 <div class="un-day-item">
                     <input type="checkbox" id="indianAddDay${index}" value="${event.date}|${event.name}">
                     <label for="indianAddDay${index}" class="un-day-label">
@@ -803,7 +795,7 @@
             const checkboxes = document.querySelectorAll('#indianDaysCheckboxes input[type="checkbox"]:checked');
             
             if (checkboxes.length === 0) {
-                document.getElementById('status').innerHTML = '<div class="error">❌ Please select Indian calendar events to add</div>';
+                document.getElementById('status').innerHTML = '<div class="error">❌ Please select Indian national days to add</div>';
                 return;
             }
             
@@ -819,7 +811,7 @@
             });
             
             regenerateCalendarWithAddedEvents();
-            document.getElementById('status').innerHTML = '<div class="success">✅ Indian calendar events added</div>';
+            document.getElementById('status').innerHTML = '<div class="success">✅ Indian national days added</div>';
         }
         
         function regenerateCalendarWithAddedEvents() {
@@ -966,85 +958,48 @@
             document.getElementById('status').innerHTML = '';
         }
         
-        function loadIndianEvents() {
+        async function loadIndianEvents() {
             const month = parseInt(document.getElementById('indianMonthSelect').value);
-            const year = document.getElementById('indianYearSelect').value;
             const eventsList = document.getElementById('indianEventsList');
             
-            eventsList.innerHTML = '<div class="un-day-item"><span>Loading Indian calendar events...</span></div>';
+            // Ensure data is loaded
+            if (Object.keys(indianNationalDaysData).length === 0) {
+                await loadIndianNationalDaysData();
+            }
             
-            // Use cached events if available
-            const cacheKey = `${year}-${month}`;
-            if (cachedIndianEvents[cacheKey]) {
-                displayIndianEventsSelection(cachedIndianEvents[cacheKey], month, eventsList);
+            eventsList.innerHTML = '<div class="un-day-item"><span>Loading Indian national days...</span></div>';
+            
+            const monthNames = ['', 'january', 'february', 'march', 'april', 'may', 'june', 
+                               'july', 'august', 'september', 'october', 'november', 'december'];
+            const monthKey = monthNames[month];
+            const monthEvents = indianNationalDaysData[monthKey] || [];
+            
+            if (monthEvents.length === 0) {
+                eventsList.innerHTML = '<div class="un-day-item"><span>No Indian national days found for this month</span></div>';
                 return;
             }
             
-            // Scrape Indian events for the selected year and month
-            scrapeIndianEventsForSelection(year, month, eventsList);
-        }
-        
-        async function scrapeIndianEventsForSelection(year, month, container) {
-            const targetUrl = `https://www.drikpanchang.com/calendars/indian/indiancalendar.html?year=${year}`;
-            const proxies = [
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(targetUrl)}`,
-                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
-            ];
+            // Convert to the expected format and remove duplicates
+            const uniqueEvents = [];
+            const seenEvents = new Set();
             
-            for (let i = 0; i < proxies.length; i++) {
-                try {
-                    const response = await fetch(proxies[i]);
-                    let html;
-                    
-                    if (i === 2) {
-                        const data = await response.json();
-                        html = data.contents;
-                    } else {
-                        html = await response.text();
-                    }
-                    
-                    if (html && (html.includes('dpEventInfo') || html.includes('dpCalendarDate'))) {
-                        const events = parseIndianEvents(html);
-                        const monthlyEvents = groupEventsByMonth(events, month);
-                        
-                        // Cache the events
-                        const cacheKey = `${year}-${month}`;
-                        cachedIndianEvents[cacheKey] = monthlyEvents;
-                        
-                        displayIndianEventsSelection(monthlyEvents, month, container);
-                        return;
-                    }
-                } catch (error) {
-                    console.log(`Indian events proxy ${i + 1} failed:`, error);
-                }
-            }
-            
-            container.innerHTML = '<div class="un-day-item"><span>Failed to load Indian calendar events</span></div>';
-        }
-        
-        function displayIndianEventsSelection(monthlyEvents, monthNum, container) {
-            const monthNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const monthName = monthNames[monthNum];
-            const monthEvents = monthlyEvents[monthName] || {};
-            
-            const eventsList = [];
-            Object.keys(monthEvents).forEach(day => {
-                monthEvents[day].forEach(eventName => {
-                    const dayStr = day < 10 ? `0${day}` : day;
-                    eventsList.push({
-                        date: `${dayStr} ${monthName}`,
-                        name: eventName
+            monthEvents.forEach(event => {
+                const key = `${event.date}-${event.event}`;
+                if (!seenEvents.has(key)) {
+                    seenEvents.add(key);
+                    uniqueEvents.push({
+                        date: event.date,
+                        name: event.event
                     });
-                });
+                }
             });
             
-            if (eventsList.length === 0) {
-                container.innerHTML = '<div class="un-day-item"><span>No Indian calendar events found for this month</span></div>';
+            if (uniqueEvents.length === 0) {
+                eventsList.innerHTML = '<div class="un-day-item"><span>No Indian national days found for this month</span></div>';
                 return;
             }
             
-            container.innerHTML = eventsList.map((event, index) => `
+            eventsList.innerHTML = uniqueEvents.map((event, index) => `
                 <div class="un-day-item">
                     <input type="checkbox" id="indianEvent${index}" value="${event.date}|${event.name}">
                     <label for="indianEvent${index}" class="un-day-label">
@@ -1063,7 +1018,7 @@
             });
             
             if (selectedEvents.length === 0) {
-                document.getElementById('status').innerHTML = '<div class="error">❌ Please select at least one Indian calendar event</div>';
+                document.getElementById('status').innerHTML = '<div class="error">❌ Please select at least one Indian national day</div>';
                 return;
             }
             
@@ -1071,7 +1026,7 @@
             const month = parseInt(document.getElementById('indianMonthSelect').value);
             const monthName = monthNames[month];
             
-            let text = `${monthName} - Indian Calendar Events\n\n`;
+            let text = `${monthName} - Indian National Days\n\n`;
             selectedEvents.forEach(event => {
                 text += `${event.date} - ${event.name}\n`;
             });
@@ -1082,10 +1037,13 @@
         }
         
         // Test connection on page load
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
             const status = document.getElementById('status');
             const isNetlify = window.location.hostname.includes('netlify');
             const isGitHub = window.location.hostname.includes('github.io');
+            
+            // Load Indian National Days data
+            await loadIndianNationalDaysData();
             
             if (isNetlify) {
                 status.innerHTML = '<div class="success">🚀 Ready to scrape events (Netlify mode)</div>';
