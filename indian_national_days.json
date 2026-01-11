@@ -301,7 +301,22 @@
   "march": [
     {
       "date": "1st March",
-      "event": "World Civil Defence Day Zero Discrimination Day Self Injury Awareness Day (SIAD) World Compliment Day",
+      "event": "World Civil Defence Day",
+      "month": "March"
+    },
+    {
+      "date": "1st March",
+      "event": "Zero Discrimination Day",
+      "month": "March"
+    },
+    {
+      "date": "1st March",
+      "event": "Self Injury Awareness Day (SIAD)",
+      "month": "March"
+    },
+    {
+      "date": "1st March",
+      "event": "World Compliment Day",
       "month": "March"
     },
     {
@@ -311,12 +326,22 @@
     },
     {
       "date": "3rd March",
-      "event": "World Wildlife Day World Hearing Day",
+      "event": "World Wildlife Day",
+      "month": "March"
+    },
+    {
+      "date": "3rd March",
+      "event": "World Hearing Day",
       "month": "March"
     },
     {
       "date": "4th March",
-      "event": "National Safety Day National Grammar Day",
+      "event": "National Grammar Day",
+      "month": "March"
+    },
+    {
+      "date": "4th March",
+      "event": "National Safety Day",
       "month": "March"
     },
     {
@@ -346,7 +371,12 @@
     },
     {
       "date": "15th March",
-      "event": "World Consumer Rights Day World Sleep Day",
+      "event": "World Consumer Rights Day",
+      "month": "March"
+    },
+    {
+      "date": "15th March",
+      "event": "World Sleep Day",
       "month": "March"
     },
     {
@@ -361,17 +391,27 @@
     },
     {
       "date": "20th March",
-      "event": "World Oral Health Day International Day of Happiness",
+      "event": "World Oral Health Day",
+      "month": "March"
+    },
+    {
+      "date": "20th March",
+      "event": "International Day of Happiness",
       "month": "March"
     },
     {
       "date": "21st March",
-      "event": "World Poetry Day World Forestry Day World Down Syndrome Day",
+      "event": "World Poetry Day",
       "month": "March"
     },
     {
       "date": "21st March",
       "event": "World Forestry Day",
+      "month": "March"
+    },
+    {
+      "date": "21st March",
+      "event": "World Down Syndrome Day",
       "month": "March"
     },
     {
@@ -451,7 +491,7 @@
     },
     {
       "date": "14th March",
-      "event": "Every year on the second Wednesday of March people worldwide are encouraged to give up smoking by raising awareness of the adverse health impacts of tobacco usePi Day",
+      "event": "Pi Day",
       "month": "March"
     },
     {
