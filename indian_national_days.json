@@ -305,6 +305,11 @@
       "month": "March"
     },
     {
+      "date": "2nd March",
+      "event": "World Teen Mental Wellness Day",
+      "month": "March"
+    },
+    {
       "date": "3rd March",
       "event": "World Wildlife Day World Hearing Day",
       "month": "March"
@@ -335,6 +340,11 @@
       "month": "March"
     },
     {
+      "date": "14th March",
+      "event": "International Day of Action for Rivers",
+      "month": "March"
+    },
+    {
       "date": "15th March",
       "event": "World Consumer Rights Day World Sleep Day",
       "month": "March"
@@ -357,6 +367,11 @@
     {
       "date": "21st March",
       "event": "World Poetry Day World Forestry Day World Down Syndrome Day",
+      "month": "March"
+    },
+    {
+      "date": "21st March",
+      "event": "World Forestry Day",
       "month": "March"
     },
     {
@@ -692,11 +707,22 @@
       "month": "April"
     }
   ],
-  "may": [],
+  "may": [
+    {
+      "date": "10 May",
+      "event": "Mothers Day",
+      "month": "May"
+    }
+  ],
   "june": [
     {
       "date": "1st June",
       "event": "Global Day of Parents",
+      "month": "June"
+    },
+    {
+      "date": "1st June",
+      "event": "World Milk Day",
       "month": "June"
     },
     {
