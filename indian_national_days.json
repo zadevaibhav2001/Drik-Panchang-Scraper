@@ -62,7 +62,12 @@
     },
     {
       "date": "11 January",
-      "event": "Death anniversary of Lal Bahadur Shastri National Human Trafficking Awareness Day",
+      "event": "National Human Trafficking Awareness Day",
+      "month": "January"
+    },
+    {
+      "date": "11 January",
+      "event": "Death anniversary of Lal Bahadur Shastri",
       "month": "January"
     },
     {
@@ -127,12 +132,22 @@
     },
     {
       "date": "24 January",
-      "event": "National Girl Child Day International Day of Education",
+      "event": "nternational Day of Education",
+      "month": "January"
+    },
+    {
+      "date": "24 January",
+      "event": "National Girl Child Day",
       "month": "January"
     },
     {
       "date": "25 January",
-      "event": "National Voters Day National Tourism Day",
+      "event": "National Voters Day",
+      "month": "January"
+    },
+    {
+      "date": "25 January",
+      "event": "National Tourism Day",
       "month": "January"
     },
     {
@@ -142,7 +157,12 @@
     },
     {
       "date": "26 January",
-      "event": "Republic Day International Customs Day",
+      "event": "Republic Day",
+      "month": "January"
+    },
+    {
+      "date": "26 January",
+      "event": "International Customs Day",
       "month": "January"
     },
     {
@@ -162,7 +182,12 @@
     },
     {
       "date": "30 January",
-      "event": "Martyrs Day or Shaheed Diwas World Leprosy Day",
+      "event": "Shaheed Diwas World Leprosy Day",
+      "month": "January"
+    },
+    {
+      "date": "30 January",
+      "event": "Martyrs Day",
       "month": "January"
     },
     {
@@ -432,11 +457,6 @@
     {
       "date": "24 March",
       "event": "World Tuberculosis (TB) Day",
-      "month": "March"
-    },
-    {
-      "date": "25 March",
-      "event": "Festival of Colours-Holi",
       "month": "March"
     },
     {
