@@ -287,6 +287,7 @@
                 <select id="calendarType" onchange="toggleCalendarType()">
                     <option value="iskcon">ISKCON Events</option>
                     <option value="indian">Indian National Days</option>
+                    <option value="festivals">Indian Festival Calendar</option>
                     <option value="un">UN International Days</option>
                     <option value="maharaj">ISKCON Maharaj Days</option>
                 </select>
@@ -349,6 +350,18 @@
                 <button onclick="generateIndianCalendar()">📋 Generate Calendar</button>
             </div>
             
+            <div id="festivalsControls" class="controls" style="display: none;">
+                <label>📅 Year:</label>
+                <select id="festivalsYearSelect">
+                    <option value="2025">2025</option>
+                    <option value="2026" selected>2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                </select>
+                
+                <button onclick="scrapeFestivals()">🔍 Get Festivals</button>
+            </div>
+            
             <div id="unAddSection" style="display: none;">
                 <h3>🌍 Add UN International Days:</h3>
                 <div id="unDaysCheckboxes" class="un-days-list"></div>
@@ -370,6 +383,14 @@
                 <div id="maharajDaysCheckboxes" class="un-days-list"></div>
                 <div class="un-button-container">
                     <button onclick="addMaharajDays()">➕ Add Selected to Calendar</button>
+                </div>
+            </div>
+            
+            <div id="festivalsAddSection" style="display: none;">
+                <h3>🎉 Add Indian Festivals:</h3>
+                <div id="festivalDaysCheckboxes" class="un-days-list"></div>
+                <div class="un-button-container">
+                    <button onclick="addFestivalDays()">➕ Add Selected to Calendar</button>
                 </div>
             </div>
             
@@ -504,6 +525,68 @@
             }
             
             status.innerHTML = '<div class="error">❌ All methods failed. Try refreshing or deploy to Netlify.</div>';
+        }
+        
+        async function scrapeFestivals() {
+            const year = document.getElementById('festivalsYearSelect').value;
+            const status = document.getElementById('status');
+            const results = document.getElementById('results');
+            
+            status.innerHTML = '<div class="loading">🔄 Loading Indian festivals...</div>';
+            results.innerHTML = '';
+            
+            const targetUrl = `https://www.drikpanchang.com/calendars/indian/indiancalendar.html?year=${year}`;
+            const proxies = [
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
+            ];
+            
+            for (let i = 0; i < proxies.length; i++) {
+                try {
+                    const response = await fetch(proxies[i]);
+                    let html;
+                    
+                    if (i === 1) {
+                        const data = await response.json();
+                        html = data.contents;
+                    } else {
+                        html = await response.text();
+                    }
+                    
+                    if (html && html.includes('dpEventInfo')) {
+                        const events = parseFestivalEvents(html);
+                        const monthlyEvents = groupEventsByMonth(events, '');
+                        displayResults(monthlyEvents, 'festivals');
+                        status.innerHTML = '';
+                        return;
+                    }
+                } catch (error) {
+                    console.log(`Proxy ${i + 1} failed:`, error);
+                }
+            }
+            
+            status.innerHTML = '<div class="error">❌ Failed to load festivals. Try again.</div>';
+        }
+        
+        function parseFestivalEvents(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const eventElements = doc.querySelectorAll('.dpEvent');
+            const events = [];
+            
+            eventElements.forEach(element => {
+                const dateElement = element.querySelector('.dpEventGregDate');
+                const nameElement = element.querySelector('.dpEventName');
+                
+                if (dateElement && nameElement) {
+                    events.push({
+                        date: dateElement.textContent.trim(),
+                        name: nameElement.textContent.trim()
+                    });
+                }
+            });
+            
+            return events;
         }
         
         async function scrapeIndianEvents() {
@@ -663,7 +746,8 @@
         
         let currentMonthlyEvents = {};
         let currentCalendarType = 'iskcon';
-        let addedEvents = {}; // Track events that have been added
+        let addedEvents = {};
+        let festivalEventsData = {};
         
         function displayResults(monthlyEvents, calendarType = 'iskcon') {
             currentMonthlyEvents = monthlyEvents;
@@ -708,6 +792,8 @@
                     document.getElementById('indianAddSection').style.display = 'flex';
                     loadMaharajDaysForMonth(parseInt(selectedMonth));
                     document.getElementById('maharajAddSection').style.display = 'flex';
+                    loadFestivalDaysForMonth(parseInt(selectedMonth));
+                    document.getElementById('festivalsAddSection').style.display = 'flex';
                 }
             }
         }
@@ -871,6 +957,88 @@
             document.getElementById('status').innerHTML = '<div class="success">✅ Indian national days added</div>';
         }
         
+        async function loadFestivalDaysForMonth(monthNum) {
+            const container = document.getElementById('festivalDaysCheckboxes');
+            const year = document.getElementById('yearSelect').value;
+            const monthNames = ['', 'january', 'february', 'march', 'april', 'may', 'june', 
+                               'july', 'august', 'september', 'october', 'november', 'december'];
+            const monthKey = `${year}-${monthNum}`;
+            
+            container.innerHTML = '<div class="un-day-item"><span>Loading festivals...</span></div>';
+            
+            if (!festivalEventsData[monthKey]) {
+                await loadFestivalData(year, monthNum);
+            }
+            
+            const monthEvents = festivalEventsData[monthKey] || [];
+            
+            if (monthEvents.length === 0) {
+                container.innerHTML = '<div class="un-day-item"><span>No festivals found</span></div>';
+                return;
+            }
+            
+            container.innerHTML = monthEvents.map((event, index) => `
+                <div class="un-day-item">
+                    <input type="checkbox" id="festivalAddDay${index}" value="${event.day}|${event.name}">
+                    <label for="festivalAddDay${index}" class="un-day-label">
+                        <span class="un-day-date">${event.day}</span><br>
+                        ${event.name}
+                    </label>
+                </div>
+            `).join('');
+        }
+        
+        async function loadFestivalData(year, monthNum) {
+            const monthNames = ['', 'january', 'february', 'march', 'april', 'may', 'june', 
+                               'july', 'august', 'september', 'october', 'november', 'december'];
+            const monthName = monthNames[monthNum];
+            const targetUrl = `https://www.drikpanchang.com/festivals/month/festivals-${monthName}.html?year=${year}`;
+            const proxies = [
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
+            ];
+            
+            for (let i = 0; i < proxies.length; i++) {
+                try {
+                    const response = await fetch(proxies[i]);
+                    let html = i === 1 ? (await response.json()).contents : await response.text();
+                    
+                    if (html && html.includes('dpEventInfo')) {
+                        const events = parseFestivalEvents(html);
+                        festivalEventsData[`${year}-${monthNum}`] = events.map(e => ({
+                            day: new Date(e.date.split(',')[0] + ', ' + e.date.split(',')[1].trim()).getDate(),
+                            name: e.name
+                        }));
+                        return;
+                    }
+                } catch (error) {
+                    console.log(`Proxy ${i + 1} failed:`, error);
+                }
+            }
+        }
+        
+        function addFestivalDays() {
+            const checkboxes = document.querySelectorAll('#festivalDaysCheckboxes input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                document.getElementById('status').innerHTML = '<div class="error">❌ Please select festivals to add</div>';
+                return;
+            }
+            
+            checkboxes.forEach(checkbox => {
+                const [day, name] = checkbox.value.split('|');
+                const dayNum = parseInt(day);
+                if (!addedEvents[dayNum]) addedEvents[dayNum] = [];
+                const eventName = `[Festival] ${name}`;
+                if (!addedEvents[dayNum].includes(eventName)) {
+                    addedEvents[dayNum].push(eventName);
+                }
+            });
+            
+            regenerateCalendarWithAddedEvents();
+            document.getElementById('status').innerHTML = '<div class="success">✅ Festivals added</div>';
+        }
+        
         async function loadMaharajDaysForMonth(monthNum) {
             const container = document.getElementById('maharajDaysCheckboxes');
             
@@ -1001,6 +1169,7 @@
             const type = document.getElementById('calendarType').value;
             const iskconControls = document.getElementById('iskconControls');
             const indianControls = document.getElementById('indianControls');
+            const festivalsControls = document.getElementById('festivalsControls');
             const unControls = document.getElementById('unControls');
             const maharajControls = document.getElementById('maharajControls');
             const unDaysSection = document.getElementById('unDaysSection');
@@ -1009,11 +1178,13 @@
             const unAddSection = document.getElementById('unAddSection');
             const indianAddSection = document.getElementById('indianAddSection');
             const maharajAddSection = document.getElementById('maharajAddSection');
+            const festivalsAddSection = document.getElementById('festivalsAddSection');
             const outputSection = document.getElementById('outputSection');
             
             // Hide all sections first
             iskconControls.style.display = 'none';
             indianControls.style.display = 'none';
+            festivalsControls.style.display = 'none';
             unControls.style.display = 'none';
             maharajControls.style.display = 'none';
             unDaysSection.style.display = 'none';
@@ -1022,6 +1193,7 @@
             unAddSection.style.display = 'none';
             indianAddSection.style.display = 'none';
             maharajAddSection.style.display = 'none';
+            festivalsAddSection.style.display = 'none';
             outputSection.style.display = 'none';
             
             if (type === 'un') {
@@ -1032,6 +1204,8 @@
                 indianControls.style.display = 'flex';
                 indianDaysSection.style.display = 'block';
                 loadIndianEvents();
+            } else if (type === 'festivals') {
+                festivalsControls.style.display = 'flex';
             } else if (type === 'maharaj') {
                 maharajControls.style.display = 'flex';
                 maharajDaysSection.style.display = 'block';
