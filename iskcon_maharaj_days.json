@@ -38,6 +38,12 @@
       "event": "HH Tamala Krishna Goswami Maharaj - Disappearance Day",
       "month": "March",
       "type": "disappearance"
+    },
+    {
+      "date": "19 March",
+      "event": "HG Pankajanghri Prabhu and HG Jananivas Prabhu - Appearance Day",
+      "month": "March",
+      "type": "appearance"
     }
   ],
   "april": [
@@ -55,6 +61,12 @@
     }
   ],
   "may": [
+    {
+      "date": "04 May",
+      "event": "HG Pankajanghri Prabhu - Disappearance Day",
+      "month": "May",
+      "type": "disappearance"
+    },
     {
       "date": "05 May",
       "event": "HH Gopala Krishna Goswami Maharaj - Disappearance Day",
