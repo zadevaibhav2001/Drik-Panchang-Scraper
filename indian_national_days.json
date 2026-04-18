@@ -746,7 +746,18 @@
       "month": "June"
     }
   ],
-  "july": [],
+  "july": [
+    {
+      "date": "1 July",
+      "event": "National Doctor's Day",
+      "month": "July"
+    },
+    {
+      "date": "19 July",
+      "event": "Incorporation of ISKCON in New York",
+      "month": "July"
+    }
+  ],
   "august": [],
   "september": [],
   "october": [],
