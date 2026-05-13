@@ -537,6 +537,7 @@
             
             const targetUrl = `https://www.drikpanchang.com/calendars/indian/indiancalendar.html?year=${year}`;
             const proxies = [
+                `https://drik-proxy.zadevaibhav2001.workers.dev/?url=${encodeURIComponent(targetUrl)}`,
                 `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
                 `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
             ];
@@ -994,6 +995,7 @@
             const monthName = monthNames[monthNum];
             const targetUrl = `https://www.drikpanchang.com/festivals/month/festivals-${monthName}.html?year=${year}`;
             const proxies = [
+                `https://drik-proxy.zadevaibhav2001.workers.dev/?url=${encodeURIComponent(targetUrl)}`,
                 `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
                 `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
             ];
@@ -1001,7 +1003,7 @@
             for (let i = 0; i < proxies.length; i++) {
                 try {
                     const response = await fetch(proxies[i]);
-                    let html = i === 1 ? (await response.json()).contents : await response.text();
+                    let html = i === 2 ? (await response.json()).contents : await response.text();
                     
                     if (html && html.includes('dpEventInfo')) {
                         const events = parseFestivalEvents(html);
