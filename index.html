@@ -359,8 +359,8 @@
             // Fallback to CORS proxies
             const targetUrl = `https://www.drikpanchang.com/iskcon/iskcon-event-calendar.html?geoname-id=1276533&year=${year}`;
             const proxies = [
+                `https://drik-proxy.zadevaibhav2001.workers.dev/?url=${encodeURIComponent(targetUrl)}`,
                 `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(targetUrl)}`,
                 `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
             ];
             
